@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo wigilijne - Edition Technik Informatyk</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #1a1a1a;
+            color: #eee;
+            text-align: center;
+            margin: 0;
+            padding: 10px;
+        }
+
+        h1 {
+            color: #ff4d4d;
+            margin-bottom: 0;
+            font-size: 1.2rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .subtitle {
+            color: #4caf50;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        .cell {
+            background: #2d2d2d;
+            border: 1px solid #444;
+            border-radius: 5px;
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3px;
+            font-size: 0.55rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cell .ov {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(46, 125, 50, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            opacity: 0;
+            transform: scale(0);
+            transition: 0.2s;
+            z-index: 2;
+        }
+
+        .cell.checked .ov {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .btn-bingo {
+            background: #ff4d4d;
+            color: #fff;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-top: 20px;
+            width: 80%;
+            max-width: 300px;
+        }
+
+        /* Styl dla ekranu wyboru i instrukcji */
+        #setup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .setup-card {
+            background: #2d2d2d;
+            border: 2px solid #ff4d4d;
+            padding: 25px;
+            border-radius: 15px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .setup-card h2 {
+            color: #ff4d4d;
+            margin-top: 0;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+
+        .role-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-role {
+            background: #444;
+            font-size: 15px;
+            color: white;
+            border: 2px solid transparent;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            flex: 1;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-role.active {
+            border-color: #4caf50;
+            background: #1e3a1e;
+        }
+
+        .instruction-text {
+            text-align: center;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #bbb;
+            display: none;
+            margin-top: 15px;
+        }
+
+        .btn-start {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            width: 100%;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="setup-overlay">
+        <div class="setup-card">
+            <h2>IDENTYFIKACJA SYSTEMU</h2>
+            <p style="font-size: 0.9rem; margin-bottom: 20px;">Wybierz swoją rolę w strukturze Wigilii:</p>
+            <div class="role-buttons">
+                <button class="btn-role" onclick="selectRole('profe')">WYCHOWAWCZYNI 👑</button>
+                <button class="btn-role" onclick="selectRole('uczen')">UCZEŃ 💻</button>
+            </div>
+
+            <div id="instr" class="instruction-text">
+                <hr style="border: 0; border-top: 1px solid #444; margin: 15px 0;">
+                <b>PROTOKÓŁ:</b>
+                <li><b>SKREŚLANIE:</b> Dotknij pola, gdy usłyszysz/zobaczysz dane zdarzenie. Pojawi się ikona
+                    potwierdzająca Twoją spostrzegawczość.</li>
+
+                <li><b>CEL:</b> Ułóż 5 pól w linii (pion, poziom, skos).</li>
+
+                <li><b>ZWYCIĘSTWO:</b> Po ułożeniu linii naciśnij przycisk BINGO.</li>
+
+            </div>
+
+            <button id="start-btn" class="btn-start" onclick="startGame()">Dobra, gramy!!</button>
+        </div>
+    </div>
+
+    <h1 onclick="location.reload()">ADOPCJA FILOLOGICZNA</h1>
+    <div id="current-subtitle" class="subtitle">Zjazd Rodzinny u Pani Iwonki</div>
+    <div class="container" id="b"></div>
+    <button class="btn-bingo" onclick="check()">SPRAWDŹ CZY BINGO!</button>
+
+    <script>
+        let userRole = '';
+        let s = new Array(25).fill(false);
+
+        // Baza dla Ucznia (obserwuje Panią Iwonkę)
+        const dataUczen = [
+            { t: "Pani rzuca wulgaryzmem", i: "🤬" },
+            { t: "Poprawianie gramatyki", i: "✍️" },
+            { t: "Nawiązanie do 'Macochy'", i: "👩‍👦" },
+            { t: "Wspomnienie 'Tej Poprzedniej'", i: "👻" },
+            { t: "Pani przeprasza, że przeklina", i: "⏳" },
+            { t: "Śmiech z ryzykownego żartu", i: "😂" },
+            { t: "Pani chwali klasę", i: "❤️" },
+            { t: "Wzmianka o maturze", i: "📖" },
+            { t: "Pani: 'Znam więcej słów...'", i: "📚" },
+            { t: "Pani patrzy z miłością", i: "👸" },
+            { t: "Pani wspomina o 'Weselu'", i: "🎭" },
+            { t: "Narzekanie z ust pani na pracowników szkoły", i: "📍" },
+            { t: "Pani wspomina o łazankach", i: "🍝" },
+            { t: "<i>Szkoda, że to ostatnie nasze spotkanie wigilijne</i>", i: "📜" },
+            { t: "Pani ucisza klasę", i: "🤫" },
+            { t: "Dygresja o filologii", i: "📜" },
+            { t: "Pani zwraca się do uczniów 'dzieci, skarbeczki, kochani, Proszę Państwa", i: "📜" },
+            { t: "Personalne narzekanie na ulubioną polonistkę, sąsiadke", i: "📜" },
+
+
+
+
+        ];
+
+        // Baza dla Wychowawczyni (obserwuje Uczniów)
+        const dataProfe = [
+            { t: "Ktoś wylewa picie", i: "🥤" },
+            { t: "Sernik vs Miodownik", i: "🍰" },
+            { t: "Uczniowie robią selfie", i: "📸" },
+            { t: "Nieadekwatny ubiór do dnia", i: "🧶" },
+            { t: "Siorbanie herbaty", i: "☕" },
+            { t: "Szukanie gniazdka", i: "🔌" },
+            { t: "Memy pod stołem", i: "📱" },
+            { t: "Słuchawka w uchu", i: "📡" },
+            { t: "Żart o planie lekcji", i: "🏫" },
+            { t: "Ktoś udaje DJ-a", i: "🎵" },
+            { t: "Spóźnialski wchodzi", i: "🏃" },
+            { t: "Slang (nie rozumiem!)", i: "🤔" },
+            { t: "Kruszenie piernikiem", i: "🍪" },
+            { t: "Walka o mandarynkę", i: "🍊" },
+            { t: "Cisza o przyszłości", i: "😶" },
+            { t: "Czapka Mikołaja na głowie", i: "🎅" },
+            { t: "Komentarz o choince", i: "🎄" },
+            { t: "Życzenia 'Nawzajem'", i: "🤝" },
+            { t: "Uczeń użył wulgaryzmu", i: "🤬" },
+
+        ];
+
+        function selectRole(role) {
+            userRole = role;
+            document.querySelectorAll('.btn-role').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('instr').style.display = 'block';
+            document.getElementById('start-btn').style.display = 'block';
+        }
+
+        function startGame() {
+            document.getElementById('setup-overlay').style.display = 'none';
+            if (userRole === 'profe') {
+                document.getElementById('current-subtitle').innerText = "Panel Zarządzania dla Pani Profesor";
+            }
+            init();
+        }
+
+        function init() {
+            const div = document.getElementById('b');
+            const sourceData = userRole === 'profe' ? dataProfe : dataUczen;
+
+            // Wypełnienie do 24 pól (jedno centralne stałe)
+            let combined = [...sourceData];
+            while (combined.length < 24) combined.push(sourceData[Math.floor(Math.random() * sourceData.length)]);
+
+            let sh = combined.sort(() => 0.5 - Math.random()).slice(0, 24);
+
+            // Wstawienie pola centralnego na indeks 12
+            const centerField = userRole === 'profe' ? { t: "Uczniowie są grzeczni", i: "😇" } : { t: "Pani patrzy z miłością", i: "👸" };
+            sh.splice(12, 0, centerField);
+
+            div.innerHTML = '';
+            sh.forEach((item, i) => {
+                const c = document.createElement('div');
+                c.className = 'cell';
+                c.id = 'c' + i;
+                c.innerHTML = `<span>${item.t}</span><div class="ov">${item.i}</div>`;
+                c.onclick = () => { s[i] = !s[i]; c.classList.toggle('checked'); };
+                div.appendChild(c);
+            });
+        }
+
+        function check() {
+            const w = [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [10, 11, 12, 13, 14], [15, 16, 17, 18, 19], [20, 21, 22, 23, 24], [0, 5, 10, 15, 20], [1, 6, 11, 16, 21], [2, 7, 12, 17, 22], [3, 8, 13, 18, 23], [4, 9, 14, 19, 24], [0, 6, 12, 18, 24], [4, 8, 12, 16, 20]];
+            if (w.some(l => l.every(i => s[i]))) {
+                if (userRole === 'profe') {
+                    alert("👑 TRIUMF MACIERZYŃSTWA!\n\nPani Profesor, to arcydzieło! Klasa 5D została w pełni zdiagnozowana. Gratulujemy BINGO!");
+                } else {
+                    alert("📜 BINGO!\n\nGratulacje! Twoja linia jest bezbłędna jak Inwokacja! Pani Iwonka byłaby dumna.");
+                }
+            } else {
+                const msg = userRole === 'profe' ? "Jeszcze nie, Pani Profesor! Uczniowie jeszcze nie dostarczyli wystarczającej liczby dowodów." : "✍️ BRAKI W SKŁADNI! To jeszcze nie Bingo. Popraw wypracowanie!";
+                alert(msg);
+            }
+        }
+    </script>
+</body>
+
+</html>
