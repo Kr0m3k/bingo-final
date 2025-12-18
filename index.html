@@ -166,11 +166,48 @@
             cursor: pointer;
             display: none;
         }
+
+        .decor {
+        position: fixed;
+        bottom: 20px;
+        width: 150px; /* dopasuj rozmiar */
+        z-index: -1; /* pod planszą, żeby nie zasłaniały klikania */
+        opacity: 0.8;
+        transition: opacity 0.3s;
+    }    
+
+    #decor-left {
+        left: 20px;
+    }
+    
+    #decor-right {
+        right: 20px;
+    }
+    
+    /* Ukrywamy na małych ekranach (telefonach), żeby nie zasłaniały planszy */
+    @media (max-width: 1000px) {
+        .decor {
+            display: none;
+        }
+    }
+    
+    /* Opcjonalnie: lekkie pulsowanie, żeby nie było nudno */
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+    
+    .decor {
+        animation: float 4s ease-in-out infinite;
+    }
     </style>
 </head>
 
 <body>
-
+    <img src="choinka.png" id="decor-left" class="decor">
+    <img src="balwan.png" id="decor-right" class="decor">
+    
     <div id="setup-overlay">
         <div class="setup-card">
             <h2>IDENTYFIKACJA SYSTEMU</h2>
@@ -202,6 +239,43 @@
     <button class="btn-bingo" onclick="check()">SPRAWDŹ CZY BINGO!</button>
 
     <script>
+function createSnow() {
+    const snowContainer = document.createElement('div');
+    snowContainer.style.position = 'fixed';
+    snowContainer.style.top = '0';
+    snowContainer.style.left = '0';
+    snowContainer.style.width = '100vw';
+    snowContainer.style.height = '100vh';
+    snowContainer.style.pointerEvents = 'none';
+    snowContainer.style.zIndex = '9999';
+    document.body.appendChild(snowContainer);
+
+    setInterval(() => {
+        const snowflake = document.createElement('div');
+        snowflake.innerHTML = '❄';
+        snowflake.style.position = 'absolute';
+        snowflake.style.left = Math.random() * 100 + 'vw';
+        snowflake.style.top = '-20px';
+        snowflake.style.color = 'white';
+        snowflake.style.opacity = Math.random();
+        snowflake.style.fontSize = (Math.random() * 10 + 10) + 'px';
+        snowflake.style.transition = `transform ${Math.random() * 3 + 2}s linear, opacity 2s`;
+        
+        snowContainer.appendChild(snowflake);
+
+        setTimeout(() => {
+            snowflake.style.transform = `translateY(105vh) rotate(${Math.random() * 360}deg)`;
+        }, 100);
+
+        setTimeout(() => {
+            snowflake.remove();
+        }, 5000);
+    }, 200);
+}
+
+// Wywołaj to na starcie
+createSnow();
+        
         let userRole = '';
         let s = new Array(25).fill(false);
 
@@ -271,13 +345,21 @@
             document.getElementById('start-btn').style.display = 'block';
         }
 
-        function startGame() {
-            document.getElementById('setup-overlay').style.display = 'none';
-            if (userRole === 'profe') {
-                document.getElementById('current-subtitle').innerText = "Panel Zarządzania dla Pani Profesor";
-            }
-            init();
-        }
+        function startGame(role) {
+    userRole = role;
+    
+    // Ukrywamy ekran startowy, pokazujemy planszę
+    document.getElementById('m').style.display = 'none';
+    document.getElementById('g').style.display = 'block';
+    
+    // AKCJA: Pokazujemy ozdoby po bokach
+    const left = document.getElementById('decor-left');
+    const right = document.getElementById('decor-right');
+    if(left) left.style.display = 'block';
+    if(right) right.style.display = 'block';
+    
+    init(); // Losujemy planszę
+}
 
         function init() {
     const div = document.getElementById('b');
@@ -340,6 +422,7 @@
 
 
 </html>
+
 
 
 
