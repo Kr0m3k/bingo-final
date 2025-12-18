@@ -278,29 +278,47 @@
         }
 
         function init() {
-            const div = document.getElementById('b');
-            const sourceData = userRole === 'profe' ? dataProfe : dataUczen;
-
-            // Wypełnienie do 24 pól (jedno centralne stałe)
-            let combined = [...sourceData];
-            while (combined.length < 24) combined.push(sourceData[Math.floor(Math.random() * sourceData.length)]);
-
-            let sh = combined.sort(() => 0.5 - Math.random()).slice(0, 24);
-
-            // Wstawienie pola centralnego na indeks 12
-            const centerField = userRole === 'profe' ? { t: "Uczniowie są grzeczni", i: "😇" } : { t: "Pani patrzy z miłością", i: "👸" };
-            sh.splice(12, 0, centerField);
-
-            div.innerHTML = '';
-            sh.forEach((item, i) => {
-                const c = document.createElement('div');
-                c.className = 'cell';
-                c.id = 'c' + i;
-                c.innerHTML = `<span>${item.t}</span><div class="ov">${item.i}</div>`;
-                c.onclick = () => { s[i] = !s[i]; c.classList.toggle('checked'); };
-                div.appendChild(c);
-            });
+    const div = document.getElementById('b');
+    const sourceData = userRole === 'profe' ? dataProfe : dataUczen;
+    
+    // 1. Mieszamy całą dostępną bazę haseł
+    let shuffled = [...sourceData].sort(() => 0.5 - Math.random());
+    
+    // 2. Wybieramy dokładnie 24 UNIKALNE obiekty (na wszelki wypadek sprawdzamy po tekście)
+    let uniquePool = [];
+    let seenTexts = new Set();
+    
+    for (let item of shuffled) {
+        if (!seenTexts.has(item.t) && uniquePool.length < 24) {
+            seenTexts.add(item.t);
+            uniquePool.push(item.t === "Macocha patrzy z miłością" ? {t:"Macocha patrzy z pasją", i:"🔥"} : item); 
+            // ^ unikamy kolizji z polem centralnym
         }
+    }
+
+    // 3. Wstawiamy pole centralne na sztywno
+    const centerField = userRole === 'profe' ? 
+        {t:"Uczniowie są grzeczni", i:"😇"} : 
+        {t:"Macocha patrzy z miłością", i:"👸"};
+    
+    uniquePool.splice(12, 0, centerField);
+
+    // 4. Renderujemy planszę
+    div.innerHTML = '';
+    s = new Array(25).fill(false); // Resetujemy stan skreśleń przy nowej grze
+    
+    uniquePool.forEach((item, i) => {
+        const c = document.createElement('div');
+        c.className = 'cell';
+        c.id = 'c' + i;
+        c.innerHTML = `<span>${item.t}</span><div class="ov">${item.i}</div>`;
+        c.onclick = () => { 
+            s[i] = !s[i]; 
+            c.classList.toggle('checked'); 
+        };
+        div.appendChild(c);
+    });
+}
 
         function check() {
             const w = [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [10, 11, 12, 13, 14], [15, 16, 17, 18, 19], [20, 21, 22, 23, 24], [0, 5, 10, 15, 20], [1, 6, 11, 16, 21], [2, 7, 12, 17, 22], [3, 8, 13, 18, 23], [4, 9, 14, 19, 24], [0, 6, 12, 18, 24], [4, 8, 12, 16, 20]];
@@ -320,4 +338,5 @@
 
 
 </html>
+
 
