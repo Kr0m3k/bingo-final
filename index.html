@@ -301,9 +301,10 @@
         ];
 
         // --- 1. FUNKCJA STARTOWA (WYBÓR ROLI) ---
-function startGame(role) {
-    // Przypisujemy rolę (uczeń / nauczyciel)
+function selectRole(role) {
     userRole = role;
+    document.getElementById('m').style.display = 'none';
+    document.getElementById('g').style.display = 'block';
 
     // Przełączamy widoki w HTML
     const menu = document.getElementById('m');
@@ -395,6 +396,7 @@ createSnow();
 
 
 </html>
+
 
 
 
