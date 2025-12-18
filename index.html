@@ -345,20 +345,24 @@ createSnow();
             document.getElementById('start-btn').style.display = 'block';
         }
 
-        function startGame(role) {
+     function startGame(role) {
     userRole = role;
     
-    // Ukrywamy ekran startowy, pokazujemy planszę
-    document.getElementById('m').style.display = 'none';
-    document.getElementById('g').style.display = 'block';
+    // Ukrywamy menu, pokazujemy grę
+    const menu = document.getElementById('m');
+    const game = document.getElementById('g');
+    if (menu) menu.style.display = 'none';
+    if (game) game.style.display = 'block';
     
-    // AKCJA: Pokazujemy ozdoby po bokach
+    // Bezpieczne pokazanie ozdób - używamy try-catch lub sprawdzenia
     const left = document.getElementById('decor-left');
     const right = document.getElementById('decor-right');
+    
     if(left) left.style.display = 'block';
     if(right) right.style.display = 'block';
     
-    init(); // Losujemy planszę
+    // To musi być na końcu - jeśli kod wyżej padnie, init() się nie wykona
+    init(); 
 }
 
         function init() {
@@ -422,6 +426,7 @@ createSnow();
 
 
 </html>
+
 
 
 
