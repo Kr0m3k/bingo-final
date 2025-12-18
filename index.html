@@ -345,25 +345,13 @@ createSnow();
             document.getElementById('start-btn').style.display = 'block';
         }
 
-     function startGame(role) {
-    userRole = role;
-    
-    // Ukrywamy menu, pokazujemy grę
-    const menu = document.getElementById('m');
-    const game = document.getElementById('g');
-    if (menu) menu.style.display = 'none';
-    if (game) game.style.display = 'block';
-    
-    // Bezpieczne pokazanie ozdób - używamy try-catch lub sprawdzenia
-    const left = document.getElementById('decor-left');
-    const right = document.getElementById('decor-right');
-    
-    if(left) left.style.display = 'block';
-    if(right) right.style.display = 'block';
-    
-    // To musi być na końcu - jeśli kod wyżej padnie, init() się nie wykona
-    init(); 
-}
+     function startGame() {
+            document.getElementById('setup-overlay').style.display = 'none';
+            if (userRole === 'profe') {
+                document.getElementById('current-subtitle').innerText = "Panel Zarządzania dla Pani Profesor";
+            }
+            init();
+        }
 
         function init() {
     const div = document.getElementById('b');
@@ -426,6 +414,7 @@ createSnow();
 
 
 </html>
+
 
 
 
