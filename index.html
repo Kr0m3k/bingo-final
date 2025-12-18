@@ -213,7 +213,6 @@
             { t: "Pani chwali klasę", i: "❤️" },
             { t: "Wzmianka o maturze", i: "📖" },
             { t: "Pani: <i>Znam więcej słów wulgarnych niż wy...</i>", i: "📚" },
-            { t: "Pani patrzy z miłością", i: "👸" },
             { t: "Pani wspomina o jakiejś książce", i: "🎭" },
             { t: "Pani narzeka na pracowników szkoły", i: "📍" },
             { t: "Pani wspomina o łazankach", i: "🍝" },
@@ -291,7 +290,7 @@
     for (let item of shuffled) {
         if (!seenTexts.has(item.t) && uniquePool.length < 24) {
             seenTexts.add(item.t);
-            uniquePool.push(item.t === "Macocha patrzy z miłością" ? {t:"Macocha patrzy z pasją", i:"🔥"} : item); 
+            uniquePool.push(item.t === "Pani patrzy z miłością" ? {t:"Pani patrzy z pasją", i:"🔥"} : item); 
             // ^ unikamy kolizji z polem centralnym
         }
     }
@@ -299,7 +298,7 @@
     // 3. Wstawiamy pole centralne na sztywno
     const centerField = userRole === 'profe' ? 
         {t:"Uczniowie są grzeczni", i:"😇"} : 
-        {t:"Macocha patrzy z miłością", i:"👸"};
+        {t:"Pani patrzy z miłością", i:"👸"};
     
     uniquePool.splice(12, 0, centerField);
 
@@ -326,7 +325,7 @@
                 if (userRole === 'profe') {
                     alert("👑 TRIUMF MACIERZYŃSTWA!\n\nPani Profesor, to arcydzieło! Klasa 5D została w pełni zdiagnozowana. Gratulujemy BINGO!");
                 } else {
-                    alert("📜 BINGO!\n\nGratulacje! Twoja linia jest bezbłędna jak Inwokacja! Pani Iwonka byłaby dumna.");
+                    alert("📜 BINGO!\n\nGratulacje! Twoja linia jest bezbłędna jak Inwokacja! Pani Profesor byłaby dumna.");
                 }
             } else {
                 const msg = userRole === 'profe' ? "Jeszcze nie, Pani Profesor! Uczniowie jeszcze nie dostarczyli wystarczającej liczby dowodów." : "✍️ BRAKI W SKŁADNI! To jeszcze nie Bingo. Popraw wypracowanie!";
@@ -338,5 +337,6 @@
 
 
 </html>
+
 
 
